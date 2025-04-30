@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -91,11 +90,16 @@ const AttendanceForm = () => {
             throw new Error('Nenhuma sessão pendente encontrada para este curso.');
           }
         } else {
-          // Get session data
+          // Get session data - here's the fix: convert sessionId to a number
+          const numericSessionId = parseInt(targetSessionId as string, 10);
+          if (isNaN(numericSessionId)) {
+            throw new Error('ID da sessão inválido');
+          }
+          
           const { data: session, error: sessionError } = await supabase
             .from('course_sessions')
             .select('*')
-            .eq('id', targetSessionId)
+            .eq('id', numericSessionId)
             .single();
 
           if (sessionError) throw sessionError;
@@ -137,11 +141,15 @@ const AttendanceForm = () => {
 
           if (studentsError) throw studentsError;
 
-          // Get existing attendance records
+          // Get existing attendance records - make sure we use the numeric session ID
+          const numericSessionId = typeof targetSession.id === 'string' 
+            ? parseInt(targetSession.id, 10) 
+            : targetSession.id;
+            
           const { data: existingAttendance, error: attendanceError } = await supabase
             .from('attendance')
             .select('*')
-            .eq('session_id', targetSession.id);
+            .eq('session_id', numericSessionId);
 
           if (attendanceError) throw attendanceError;
 
