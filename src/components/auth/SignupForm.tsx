@@ -77,27 +77,29 @@ const SignupForm = () => {
 
       if (error) throw error;
       
-      // Create leader profile (default role is 'leader')
-      // Only work if row level security allows it
-      const { error: leaderError } = await supabase
-        .from('leaders')
-        .insert({
-          name: values.name,
-          email: values.email,
-          phone: values.phone,
-          dob: values.dob.toISOString().split('T')[0],
-          user_id: data.user?.id,
-          role: 'leader'
+      if (data.user) {
+        // Create leader profile (default role is 'leader')
+        const { error: leaderError } = await supabase
+          .from('leaders')
+          .insert({
+            name: values.name,
+            email: values.email,
+            phone: values.phone,
+            dob: values.dob.toISOString().split('T')[0],
+            user_id: data.user.id,
+            role: 'leader',
+            is_active: true
+          });
+
+        if (leaderError) throw leaderError;
+
+        toast({
+          title: 'Cadastro realizado com sucesso!',
+          description: 'Um email de verificação foi enviado para o seu endereço de email.',
         });
 
-      if (leaderError) throw leaderError;
-
-      toast({
-        title: 'Cadastro realizado com sucesso!',
-        description: 'Um email de verificação foi enviado para o seu endereço de email.',
-      });
-
-      navigate('/login');
+        navigate('/login');
+      }
     } catch (error: any) {
       console.error('Signup error:', error);
       toast({
