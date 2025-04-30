@@ -16,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, insira um email válido.' }),
@@ -43,22 +44,26 @@ const LoginForm = () => {
     setIsLoading(true);
 
     try {
-      // This is a placeholder for Supabase auth integration
-      // const { data, error } = await supabase.auth.signInWithPassword({
-      //   email: values.email,
-      //   password: values.password,
-      // });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      });
 
-      // if (error) throw error;
+      if (error) throw error;
       
-      // Mock authentication for demo purposes
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Verify if the user is a leader or pastor
+      const { data: leaderData, error: leaderError } = await supabase
+        .from('leaders')
+        .select('role')
+        .eq('user_id', data.user.id)
+        .single();
       
-      // Mock fetching user role
-      const role = values.email.includes('pastor') ? 'pastor' : 'leader';
+      if (leaderError && leaderError.code !== 'PGRST116') {
+        throw leaderError;
+      }
 
       // Redirect based on role
-      if (role === 'pastor') {
+      if (leaderData?.role === 'pastor') {
         navigate('/admin');
       } else {
         navigate('/dashboard');
@@ -68,12 +73,12 @@ const LoginForm = () => {
         title: 'Login bem-sucedido!',
         description: 'Bem-vindo ao Portal de Gestão de Cursos Repense.',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
       toast({
         variant: 'destructive',
         title: 'Erro de autenticação',
-        description: 'Email ou senha inválidos. Por favor, tente novamente.',
+        description: error.message || 'Email ou senha inválidos. Por favor, tente novamente.',
       });
     } finally {
       setIsLoading(false);

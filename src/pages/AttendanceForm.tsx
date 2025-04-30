@@ -12,40 +12,168 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useRequireLeader } from '@/lib/auth';
+import { supabase } from '@/integrations/supabase/client';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Student, CourseSession } from '@/types/schema';
 
-// Mock data
-const sessionData = {
-  id: '1',
-  courseId: '1',
-  courseName: 'Discipulado Básico',
-  sessionNumber: 3,
-  sessionDate: '29/03/2023',
-  topic: 'Fundamentos da Fé',
-  isCompleted: false,
-};
-
-const students = [
-  { id: '1', name: 'Ana Santos', email: 'ana@example.com', phone: '(11) 9876-5432', present: true, justification: '' },
-  { id: '2', name: 'Bruno Silva', email: 'bruno@example.com', phone: '(11) 9123-4567', present: true, justification: '' },
-  { id: '3', name: 'Carlos Oliveira', email: 'carlos@example.com', phone: '(11) 8765-4321', present: false, justification: 'Viagem a trabalho' },
-  { id: '4', name: 'Daniela Costa', email: 'daniela@example.com', phone: '(11) 7654-3210', present: true, justification: '' },
-  { id: '5', name: 'Eduardo Santos', email: 'eduardo@example.com', phone: '(11) 6543-2109', present: true, justification: '' },
-  { id: '6', name: 'Fernanda Lima', email: 'fernanda@example.com', phone: '(11) 5432-1098', present: false, justification: 'Doente' },
-  { id: '7', name: 'Gustavo Pereira', email: 'gustavo@example.com', phone: '(11) 4321-0987', present: true, justification: '' },
-  { id: '8', name: 'Helena Souza', email: 'helena@example.com', phone: '(11) 3210-9876', present: true, justification: '' },
-  { id: '9', name: 'Igor Rocha', email: 'igor@example.com', phone: '(11) 2109-8765', present: false, justification: '' },
-  { id: '10', name: 'Júlia Melo', email: 'julia@example.com', phone: '(11) 1098-7654', present: true, justification: '' },
-];
+interface StudentAttendance {
+  id?: number;
+  student: Student;
+  present: boolean;
+  justification: string;
+}
 
 const AttendanceForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const auth = useRequireLeader();
   const { sessionId } = useParams();
+  
   const [filter, setFilter] = useState('all');
-  const [attendanceData, setAttendanceData] = useState<typeof students>(students);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notes, setNotes] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [sessionData, setSessionData] = useState<CourseSession | null>(null);
+  const [courseName, setCourseName] = useState('');
+  const [attendanceData, setAttendanceData] = useState<StudentAttendance[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!auth.isAuthenticated) return;
+
+      try {
+        setLoading(true);
+
+        // Get the leader ID
+        const { data: leaderData, error: leaderError } = await supabase
+          .from('leaders')
+          .select('id')
+          .eq('user_id', auth.user!.id)
+          .single();
+
+        if (leaderError) throw leaderError;
+
+        let targetSessionId = sessionId;
+        let targetSession;
+
+        if (sessionId === 'new') {
+          // Get leader's first active course
+          const { data: courseData, error: courseError } = await supabase
+            .from('courses')
+            .select('*')
+            .eq('leader_id', leaderData.id)
+            .eq('is_active', true)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+          if (courseError) throw courseError;
+          
+          // Find next incomplete session
+          const { data: sessionsData, error: sessionsError } = await supabase
+            .from('course_sessions')
+            .select('*')
+            .eq('course_id', courseData.id)
+            .eq('is_completed', false)
+            .order('session_number', { ascending: true })
+            .limit(1);
+
+          if (sessionsError) throw sessionsError;
+
+          if (sessionsData && sessionsData.length > 0) {
+            targetSession = sessionsData[0];
+            targetSessionId = targetSession.id.toString();
+            setSessionData(targetSession);
+            setCourseName(courseData.title || 'Curso');
+          } else {
+            throw new Error('Nenhuma sessão pendente encontrada para este curso.');
+          }
+        } else {
+          // Get session data
+          const { data: session, error: sessionError } = await supabase
+            .from('course_sessions')
+            .select('*')
+            .eq('id', targetSessionId)
+            .single();
+
+          if (sessionError) throw sessionError;
+          targetSession = session;
+          setSessionData(session);
+
+          // Get course name
+          const { data: course, error: courseError } = await supabase
+            .from('courses')
+            .select('title')
+            .eq('id', session.course_id)
+            .single();
+
+          if (courseError) throw courseError;
+          setCourseName(course.title || 'Curso');
+        }
+
+        if (!targetSession) throw new Error('Sessão não encontrada');
+
+        // Get the notes for this session
+        setNotes(targetSession.notes || '');
+
+        // Get enrolled students for this course
+        const { data: enrolledStudents, error: enrolledError } = await supabase
+          .from('student_courses')
+          .select('student_id')
+          .eq('course_id', targetSession.course_id);
+
+        if (enrolledError) throw enrolledError;
+
+        if (enrolledStudents && enrolledStudents.length > 0) {
+          const studentIds = enrolledStudents.map(s => s.student_id).filter(Boolean);
+
+          // Get student details
+          const { data: students, error: studentsError } = await supabase
+            .from('students')
+            .select('*')
+            .in('id', studentIds);
+
+          if (studentsError) throw studentsError;
+
+          // Get existing attendance records
+          const { data: existingAttendance, error: attendanceError } = await supabase
+            .from('attendance')
+            .select('*')
+            .eq('session_id', targetSession.id);
+
+          if (attendanceError) throw attendanceError;
+
+          // Create attendance data with existing records if available
+          const attendance = students.map(student => {
+            const record = existingAttendance?.find(a => a.student_id === student.id);
+            return {
+              id: record?.id,
+              student,
+              present: record ? record.checked_in : false,
+              justification: record?.justification || ''
+            };
+          });
+
+          setAttendanceData(attendance);
+        }
+      } catch (error: any) {
+        console.error('Error fetching attendance data:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao carregar dados',
+          description: error.message || 'Ocorreu um erro ao carregar os dados da sessão.',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (auth.isAuthenticated) {
+      fetchData();
+    }
+  }, [auth.isAuthenticated, auth.user, sessionId]);
 
   // Filter students based on attendance status and search term
   const filteredStudents = attendanceData.filter(student => {
@@ -55,30 +183,30 @@ const AttendanceForm = () => {
       (filter === 'absent' && !student.present);
     
     const matchesSearch = 
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchTerm.toLowerCase());
+      student.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (student.student.email && student.student.email.toLowerCase().includes(searchTerm.toLowerCase()));
     
     return matchesFilter && matchesSearch;
   });
 
   // Toggle attendance status
-  const toggleAttendance = (id: string) => {
+  const toggleAttendance = (student: StudentAttendance) => {
     setAttendanceData(prev => 
-      prev.map(student => 
-        student.id === id 
-          ? { ...student, present: !student.present, justification: !student.present ? '' : student.justification } 
-          : student
+      prev.map(s => 
+        s.student.id === student.student.id 
+          ? { ...s, present: !s.present, justification: !s.present ? '' : s.justification } 
+          : s
       )
     );
   };
 
   // Update justification text
-  const updateJustification = (id: string, text: string) => {
+  const updateJustification = (student: StudentAttendance, text: string) => {
     setAttendanceData(prev => 
-      prev.map(student => 
-        student.id === id 
-          ? { ...student, justification: text } 
-          : student
+      prev.map(s => 
+        s.student.id === student.student.id 
+          ? { ...s, justification: text } 
+          : s
       )
     );
   };
@@ -98,26 +226,60 @@ const AttendanceForm = () => {
 
   // Save attendance records
   const saveAttendance = async () => {
+    if (!sessionData) return;
+    
     setIsSubmitting(true);
     
     try {
-      // This would be a real API call in production
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Update session notes
+      await supabase
+        .from('course_sessions')
+        .update({ 
+          notes,
+          is_completed: true
+        })
+        .eq('id', sessionData.id);
+      
+      // Process attendance records
+      for (const student of attendanceData) {
+        if (student.id) {
+          // Update existing record
+          await supabase
+            .from('attendance')
+            .update({
+              checked_in: student.present,
+              justification: student.present ? null : student.justification,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', student.id);
+        } else {
+          // Insert new record
+          await supabase
+            .from('attendance')
+            .insert({
+              session_id: sessionData.id,
+              student_id: student.student.id,
+              checked_in: student.present,
+              justification: student.present ? null : student.justification,
+              check_in_time: new Date().toISOString()
+            });
+        }
+      }
       
       // Success message
       toast({
         title: "Registro de presença salvo!",
-        description: `Presença registrada para a Sessão ${sessionData.sessionNumber} do curso ${sessionData.courseName}.`,
+        description: `Presença registrada para a Sessão ${sessionData.session_number} do curso ${courseName}.`,
       });
       
       // Navigate back
       navigate('/dashboard');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving attendance:', error);
       toast({
         variant: "destructive",
         title: "Erro ao salvar presença",
-        description: "Ocorreu um erro ao registrar a presença. Por favor, tente novamente.",
+        description: error.message || "Ocorreu um erro ao registrar a presença. Por favor, tente novamente.",
       });
     } finally {
       setIsSubmitting(false);
@@ -128,8 +290,62 @@ const AttendanceForm = () => {
   const presentCount = attendanceData.filter(s => s.present).length;
   const absentCount = attendanceData.length - presentCount;
 
+  if (loading || auth.loading) {
+    return (
+      <DashboardLayout userRole="leader" userName={auth.user?.user_metadata?.name || "Líder"}>
+        <div className="space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <Skeleton className="h-10 w-64" />
+            <Skeleton className="h-8 w-20" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <Skeleton className="h-8 w-48 mb-2" />
+                <Skeleton className="h-6 w-64" />
+              </CardHeader>
+              <CardContent>
+                {Array(5).fill(0).map((_, i) => (
+                  <Skeleton key={i} className="h-20 w-full mb-4" />
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-8 w-40" />
+                <Skeleton className="h-6 w-56" />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <Skeleton className="h-32 w-full" />
+                  <Skeleton className="h-32 w-full" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!sessionData) {
+    return (
+      <DashboardLayout userRole="leader" userName={auth.user?.user_metadata?.name || "Líder"}>
+        <div className="flex flex-col items-center justify-center h-64">
+          <h2 className="text-2xl font-semibold mb-4">Sessão não encontrada</h2>
+          <p className="text-muted-foreground mb-4">A sessão solicitada não foi encontrada ou você não tem permissão para acessá-la.</p>
+          <Button onClick={() => navigate('/dashboard')}>
+            Voltar para o Dashboard
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
-    <DashboardLayout>
+    <DashboardLayout userRole="leader" userName={auth.user?.user_metadata?.name || "Líder"}>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -142,14 +358,14 @@ const AttendanceForm = () => {
             </Button>
             <div>
               <h1 className="text-2xl font-bold">
-                Registro de Presença - Sessão {sessionData.sessionNumber}
+                Registro de Presença - Sessão {sessionData.session_number}
               </h1>
               <p className="text-muted-foreground">
-                {sessionData.courseName} | {sessionData.sessionDate} | {sessionData.topic}
+                {courseName} | {new Date(sessionData.session_date).toLocaleDateString('pt-BR')} | {sessionData.topic || 'Sem tópico'}
               </p>
             </div>
           </div>
-          <Badge className="w-fit">{sessionData.isCompleted ? 'Concluída' : 'Em Andamento'}</Badge>
+          <Badge className="w-fit">{sessionData.is_completed ? 'Concluída' : 'Em Andamento'}</Badge>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -204,24 +420,24 @@ const AttendanceForm = () => {
             <CardContent>
               <div className="space-y-4">
                 {filteredStudents.map((student) => (
-                  <div key={student.id} className="flex flex-col sm:flex-row gap-4 p-4 border rounded-md">
+                  <div key={student.student.id} className="flex flex-col sm:flex-row gap-4 p-4 border rounded-md">
                     <div className="flex items-start gap-3 flex-grow">
                       <div className="flex items-center h-6">
                         <Checkbox 
-                          id={`student-${student.id}`} 
+                          id={`student-${student.student.id}`} 
                           checked={student.present}
-                          onCheckedChange={() => toggleAttendance(student.id)}
+                          onCheckedChange={() => toggleAttendance(student)}
                         />
                       </div>
                       <div className="flex flex-col">
                         <Label 
-                          htmlFor={`student-${student.id}`}
+                          htmlFor={`student-${student.student.id}`}
                           className={`font-medium ${!student.present ? 'text-muted-foreground' : ''}`}
                         >
-                          {student.name}
+                          {student.student.name}
                         </Label>
                         <div className="text-xs text-muted-foreground">
-                          {student.email} | {student.phone}
+                          {student.student.email} | {student.student.phone}
                         </div>
                         
                         {!student.present && (
@@ -229,7 +445,7 @@ const AttendanceForm = () => {
                             <Input
                               placeholder="Justificativa (opcional)"
                               value={student.justification}
-                              onChange={(e) => updateJustification(student.id, e.target.value)}
+                              onChange={(e) => updateJustification(student, e.target.value)}
                               className="text-sm h-8"
                             />
                           </div>
@@ -280,13 +496,13 @@ const AttendanceForm = () => {
                     <div className="flex justify-between text-xs mb-1">
                       <span>Taxa de presença</span>
                       <span className="font-medium">
-                        {Math.round((presentCount / attendanceData.length) * 100)}%
+                        {attendanceData.length ? Math.round((presentCount / attendanceData.length) * 100) : 0}%
                       </span>
                     </div>
                     <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-repense-red" 
-                        style={{ width: `${(presentCount / attendanceData.length) * 100}%` }}
+                        style={{ width: `${attendanceData.length ? (presentCount / attendanceData.length) * 100 : 0}%` }}
                       ></div>
                     </div>
                   </div>

@@ -10,6 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 type DashboardHeaderProps = {
   userName?: string;
@@ -21,12 +23,25 @@ const DashboardHeader = ({
   userRole = 'Líder',
 }: DashboardHeaderProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [notifications] = useState(2); // Mock notification count
 
-  const handleLogout = () => {
-    // This is a placeholder for Supabase auth integration
-    // await supabase.auth.signOut();
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: 'Logout bem-sucedido',
+        description: 'Você foi desconectado com sucesso.',
+      });
+      navigate('/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao sair',
+        description: 'Ocorreu um erro ao tentar sair. Por favor, tente novamente.',
+      });
+    }
   };
 
   return (

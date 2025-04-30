@@ -21,6 +21,7 @@ import { ptBR } from 'date-fns/locale';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 const today = new Date();
 const minAge = 18;
@@ -63,16 +64,33 @@ const SignupForm = () => {
     setIsLoading(true);
 
     try {
-      // This is a placeholder for Supabase auth integration
-      // const { data, error } = await supabase.auth.signUp({
-      //   email: values.email,
-      //   password: values.password,
-      // });
+      // Sign up user with Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          data: {
+            name: values.name,
+          },
+        }
+      });
 
-      // if (error) throw error;
+      if (error) throw error;
       
-      // Mock signup process
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Create leader profile (default role is 'leader')
+      // Only work if row level security allows it
+      const { error: leaderError } = await supabase
+        .from('leaders')
+        .insert({
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          dob: values.dob.toISOString().split('T')[0],
+          user_id: data.user?.id,
+          role: 'leader'
+        });
+
+      if (leaderError) throw leaderError;
 
       toast({
         title: 'Cadastro realizado com sucesso!',
@@ -80,12 +98,12 @@ const SignupForm = () => {
       });
 
       navigate('/login');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Signup error:', error);
       toast({
         variant: 'destructive',
         title: 'Erro ao criar conta',
-        description: 'Ocorreu um erro ao criar sua conta. Por favor, tente novamente.',
+        description: error.message || 'Ocorreu um erro ao criar sua conta. Por favor, tente novamente.',
       });
     } finally {
       setIsLoading(false);
