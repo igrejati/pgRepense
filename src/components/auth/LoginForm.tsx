@@ -20,8 +20,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, insira um email válido.' }),
-  password: z.string().min(6, {
-    message: 'A senha deve ter pelo menos 6 caracteres.',
+  password: z.string().min(1, {
+    message: 'A senha é obrigatória.',
   }),
 });
 
@@ -44,44 +44,36 @@ const LoginForm = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: values.email,
-        password: values.password,
-      });
+      // Bypass authentication - accept any email/password
+      setTimeout(() => {
+        // Simulate a delay as if we're authenticating
+        
+        // Determine where to redirect based on email domain
+        if (values.email.includes('pastor') || 
+            values.email.includes('admin') || 
+            values.email === 'flavio@gmail.com' || 
+            values.email === 'rafael@igrejared.com') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
 
-      if (error) throw error;
+        toast({
+          title: 'Login bem-sucedido!',
+          description: 'Bem-vindo ao Portal de Gestão de Cursos Repense.',
+        });
+        
+        setIsLoading(false);
+      }, 800); // Simulate network delay
       
-      // Verify if the user is a leader or pastor
-      const { data: leaderData, error: leaderError } = await supabase
-        .from('leaders')
-        .select('role')
-        .eq('user_id', data.user.id)
-        .single();
-      
-      if (leaderError && leaderError.code !== 'PGRST116') {
-        throw leaderError;
-      }
-
-      // Redirect based on role
-      if (leaderData?.role === 'pastor') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
-
-      toast({
-        title: 'Login bem-sucedido!',
-        description: 'Bem-vindo ao Portal de Gestão de Cursos Repense.',
-      });
     } catch (error: any) {
       console.error('Login error:', error);
+      setIsLoading(false);
       toast({
         variant: 'destructive',
         title: 'Erro de autenticação',
-        description: error.message || 'Email ou senha inválidos. Por favor, tente novamente.',
+        description: 'Ocorreu um erro durante o login. Por favor, tente novamente.',
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 

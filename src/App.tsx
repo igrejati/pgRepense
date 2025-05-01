@@ -16,37 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 // Create a client
 const queryClient = new QueryClient();
 
-const AuthGuard = ({ children }: { children: React.ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    // Check for existing session
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setIsAuthenticated(!!data.session);
-    };
-
-    // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session);
-    });
-
-    checkSession();
-
-    // Cleanup
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  // Show nothing until we know the auth state
-  if (isAuthenticated === null) {
-    return null;
-  }
-
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
-};
-
+// No longer using AuthGuard since we're allowing any login
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -57,27 +27,11 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           
-          {/* Protected routes */}
-          <Route path="/admin" element={
-            <AuthGuard>
-              <AdminDashboard />
-            </AuthGuard>
-          } />
-          <Route path="/dashboard" element={
-            <AuthGuard>
-              <LeaderDashboard />
-            </AuthGuard>
-          } />
-          <Route path="/attendance/:sessionId" element={
-            <AuthGuard>
-              <AttendanceForm />
-            </AuthGuard>
-          } />
-          <Route path="/attendance/new" element={
-            <AuthGuard>
-              <AttendanceForm />
-            </AuthGuard>
-          } />
+          {/* No longer protected routes */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/dashboard" element={<LeaderDashboard />} />
+          <Route path="/attendance/:sessionId" element={<AttendanceForm />} />
+          <Route path="/attendance/new" element={<AttendanceForm />} />
           
           {/* Redirect to login by default */}
           <Route path="/" element={<Navigate to="/login" replace />} />
