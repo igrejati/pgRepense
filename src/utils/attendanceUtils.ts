@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { Student, CourseSession, StudentAttendance } from '@/types/schema';
+import { Student, CourseSession } from '@/types/schema';
+import { StudentAttendance } from '@/types/attendance';
 
 // Fetch attendance data from Supabase
 export const fetchAttendanceData = async (leaderUserId: string, sessionId: string | undefined) => {
