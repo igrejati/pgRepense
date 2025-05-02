@@ -16,7 +16,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, insira um email válido.' }),
@@ -44,10 +43,8 @@ const LoginForm = () => {
     setIsLoading(true);
 
     try {
-      // Bypass authentication - accept any email/password
+      // Simulate a delay as if we're authenticating
       setTimeout(() => {
-        // Simulate a delay as if we're authenticating
-        
         // Determine where to redirect based on email domain
         if (values.email.includes('pastor') || 
             values.email.includes('admin') || 
@@ -64,8 +61,7 @@ const LoginForm = () => {
         });
         
         setIsLoading(false);
-      }, 800); // Simulate network delay
-      
+      }, 800); 
     } catch (error: any) {
       console.error('Login error:', error);
       setIsLoading(false);

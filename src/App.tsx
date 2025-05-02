@@ -10,8 +10,6 @@ import AdminDashboard from "./pages/AdminDashboard";
 import LeaderDashboard from "./pages/LeaderDashboard";
 import AttendanceForm from "./pages/AttendanceForm";
 import NotFound from "./pages/NotFound";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 
 // Create a client
 const queryClient = new QueryClient();

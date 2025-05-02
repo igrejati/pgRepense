@@ -15,26 +15,14 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-
-const today = new Date();
-const minAge = 18;
-const minDate = new Date();
-minDate.setFullYear(today.getFullYear() - minAge);
 
 const formSchema = z.object({
   name: z.string().min(3, { message: 'O nome deve ter pelo menos 3 caracteres.' }),
   email: z.string().email({ message: 'Por favor, insira um email válido.' }),
   phone: z.string().min(10, { message: 'Por favor, insira um número de telefone válido.' }),
-  dob: z.date({
-    required_error: 'Por favor, selecione uma data de nascimento.',
-  }).max(minDate, { message: `Você deve ter pelo menos ${minAge} anos.` }),
+  dob: z.string().min(1, { message: 'Por favor, insira uma data de nascimento.' }),
   password: z.string().min(6, { message: 'A senha deve ter pelo menos 6 caracteres.' }),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
@@ -55,6 +43,7 @@ const SignupForm = () => {
       name: '',
       email: '',
       phone: '',
+      dob: '',
       password: '',
       confirmPassword: '',
     },
@@ -64,41 +53,33 @@ const SignupForm = () => {
     setIsLoading(true);
 
     try {
-      // Sign up user with Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: {
-          data: {
-            name: values.name,
-          },
-        }
-      });
-
-      if (error) throw error;
-      
-      if (data.user) {
-        // Create leader profile (default role is 'leader')
-        const { error: leaderError } = await supabase
-          .from('leaders')
-          .insert({
-            name: values.name,
-            email: values.email,
-            phone: values.phone,
-            dob: values.dob.toISOString().split('T')[0],
-            user_id: data.user.id,
-            role: 'leader',
-            is_active: true
-          });
-
-        if (leaderError) throw leaderError;
-
-        toast({
-          title: 'Cadastro realizado com sucesso!',
-          description: 'Um email de verificação foi enviado para o seu endereço de email.',
+      // Insert directly into the leaders table without authentication
+      const { error } = await supabase
+        .from('leaders')
+        .insert({
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          dob: values.dob,
+          role: 'leader',
+          is_active: true
         });
 
-        navigate('/login');
+      if (error) throw error;
+
+      toast({
+        title: 'Cadastro realizado com sucesso!',
+        description: 'Sua conta foi criada com sucesso.',
+      });
+
+      // Determine redirect path based on email
+      if (values.email.includes('pastor') || 
+          values.email.includes('admin') || 
+          values.email === 'flavio@gmail.com' || 
+          values.email === 'rafael@igrejared.com') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
       }
     } catch (error: any) {
       console.error('Signup error:', error);
@@ -158,40 +139,14 @@ const SignupForm = () => {
           control={form.control}
           name="dob"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
+            <FormItem>
               <FormLabel>Data de nascimento</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "dd/MM/yyyy", { locale: ptBR })
-                      ) : (
-                        <span>Selecione uma data</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) =>
-                      date > new Date() || date > minDate
-                    }
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
+              <FormControl>
+                <Input 
+                  placeholder="DD/MM/AAAA" 
+                  {...field} 
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
