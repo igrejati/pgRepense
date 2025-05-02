@@ -9,12 +9,10 @@ import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/AdminDashboard";
 import LeaderDashboard from "./pages/LeaderDashboard";
 import AttendanceForm from "./pages/AttendanceForm";
-import NotFound from "./pages/NotFound";
 
 // Create a client
 const queryClient = new QueryClient();
 
-// No longer using AuthGuard since we're allowing any login
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -25,7 +23,6 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           
-          {/* No longer protected routes */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/dashboard" element={<LeaderDashboard />} />
           <Route path="/attendance/:sessionId" element={<AttendanceForm />} />
@@ -34,8 +31,8 @@ const App = () => (
           {/* Redirect to login by default */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           
-          {/* Catch-all route */}
-          <Route path="*" element={<NotFound />} />
+          {/* Catch-all route - redirect to login instead of 404 */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
