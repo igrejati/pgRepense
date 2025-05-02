@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -10,21 +9,19 @@ import FilterBar from '@/components/dashboard/metrics/FilterBar';
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('enrollment');
   
-  // Sample data for filters
+  // Updated courses data with new course names
   const courses = [
-    { id: '1', name: 'Discipulado Básico' },
-    { id: '2', name: 'Evangelismo Prático' },
-    { id: '3', name: 'Liderança Cristã' },
-    { id: '4', name: 'Fundamentos da Fé' },
-    { id: '5', name: 'Família e Ministério' },
+    { id: '1', name: 'PG Repense o Evangelho (Presencial)' },
+    { id: '2', name: 'PG Repense a Igreja (Online)' },
+    { id: '3', name: 'PG Repense a Espiritualidade (Presencial)' },
+    { id: '4', name: 'PG Repense o Evangelho (Online)' },
+    { id: '5', name: 'PG Repense a Igreja (Presencial)' },
   ];
   
   const categories = [
     'Espiritualidade',
     'Igreja',
     'Evangelho',
-    'Família',
-    'Liderança',
   ];
 
   return (

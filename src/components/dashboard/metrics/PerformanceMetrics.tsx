@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { TabsList, TabsTrigger, Tabs } from '@/components/ui/tabs';
 import { Award, Star, TrendingUp } from 'lucide-react';
@@ -8,21 +7,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 
-// Sample data
+// Updated sample data with new course names
 const topCourses = [
-  { id: 1, course: 'Discipulado Básico', attendees: 42, enrolled: 45, rate: 93 },
-  { id: 2, course: 'Evangelismo Prático', attendees: 35, enrolled: 40, rate: 88 },
-  { id: 3, course: 'Liderança Cristã', attendees: 28, enrolled: 35, rate: 80 },
-  { id: 4, course: 'Fundamentos da Fé', attendees: 23, enrolled: 30, rate: 77 },
-  { id: 5, course: 'Família e Ministério', attendees: 15, enrolled: 20, rate: 75 },
+  { id: 1, course: 'PG Repense o Evangelho (Presencial)', attendees: 42, enrolled: 45, rate: 93 },
+  { id: 2, course: 'PG Repense a Igreja (Online)', attendees: 35, enrolled: 40, rate: 88 },
+  { id: 3, course: 'PG Repense a Espiritualidade (Presencial)', attendees: 28, enrolled: 35, rate: 80 },
+  { id: 4, course: 'PG Repense o Evangelho (Online)', attendees: 23, enrolled: 30, rate: 77 },
+  { id: 5, course: 'PG Repense a Igreja (Presencial)', attendees: 15, enrolled: 20, rate: 75 },
 ];
 
 const topSessions = [
-  { id: 1, course: 'Discipulado Básico', session: 'Sessão 1', date: '15/03', attendees: 42, potential: 45, rate: 93 },
-  { id: 2, course: 'Evangelismo Prático', session: 'Sessão 2', date: '22/03', attendees: 38, potential: 40, rate: 95 },
-  { id: 3, course: 'Liderança Cristã', session: 'Sessão 1', date: '15/03', attendees: 32, potential: 35, rate: 91 },
-  { id: 4, course: 'Fundamentos da Fé', session: 'Sessão 3', date: '29/03', attendees: 27, potential: 30, rate: 90 },
-  { id: 5, course: 'Evangelismo Prático', session: 'Sessão 1', date: '15/03', attendees: 37, potential: 40, rate: 93 },
+  { id: 1, course: 'PG Repense o Evangelho (Presencial)', session: 'Sessão 1', date: '15/03', attendees: 42, potential: 45, rate: 93 },
+  { id: 2, course: 'PG Repense a Igreja (Online)', session: 'Sessão 2', date: '22/03', attendees: 38, potential: 40, rate: 95 },
+  { id: 3, course: 'PG Repense a Espiritualidade (Presencial)', session: 'Sessão 1', date: '15/03', attendees: 32, potential: 35, rate: 91 },
+  { id: 4, course: 'PG Repense o Evangelho (Online)', session: 'Sessão 3', date: '29/03', attendees: 27, potential: 30, rate: 90 },
+  { id: 5, course: 'PG Repense a Igreja (Presencial)', session: 'Sessão 1', date: '15/03', attendees: 37, potential: 40, rate: 93 },
 ];
 
 const enrollmentTrends = [
