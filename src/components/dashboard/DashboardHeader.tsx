@@ -10,8 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 
 type DashboardHeaderProps = {
   userName?: string;
@@ -23,24 +22,18 @@ const DashboardHeader = ({
   userRole = 'Líder',
 }: DashboardHeaderProps) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { logout, user } = useAuth();
   const [notifications] = useState(2); // Mock notification count
+
+  // Use user email from auth context if available
+  const displayName = user?.email?.split('@')[0] || userName;
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
-      toast({
-        title: 'Logout bem-sucedido',
-        description: 'Você foi desconectado com sucesso.',
-      });
+      await logout();
       navigate('/login');
     } catch (error) {
       console.error('Error during logout:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao sair',
-        description: 'Ocorreu um erro ao tentar sair. Por favor, tente novamente.',
-      });
     }
   };
 
@@ -65,7 +58,7 @@ const DashboardHeader = ({
                 <User size={16} />
               </div>
               <div className="hidden md:block text-left">
-                <p className="text-sm font-medium">{userName}</p>
+                <p className="text-sm font-medium">{displayName}</p>
                 <p className="text-xs text-muted-foreground">{userRole}</p>
               </div>
               <ChevronDown size={16} className="text-muted-foreground" />
@@ -73,7 +66,7 @@ const DashboardHeader = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <div className="px-2 py-1.5 text-sm">
-              <div className="font-semibold">{userName}</div>
+              <div className="font-semibold">{displayName}</div>
               <div className="text-xs text-muted-foreground">{userRole}</div>
             </div>
             <DropdownMenuSeparator />

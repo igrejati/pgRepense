@@ -14,8 +14,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, insira um email válido.' }),
@@ -29,7 +29,7 @@ type FormValues = z.infer<typeof formSchema>;
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { login } = useAuth();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -43,33 +43,22 @@ const LoginForm = () => {
     setIsLoading(true);
 
     try {
-      // Simulate a delay as if we're authenticating
-      setTimeout(() => {
-        // Determine where to redirect based on email domain
-        if (values.email.includes('pastor') || 
-            values.email.includes('admin') || 
-            values.email === 'flavio@gmail.com' || 
-            values.email === 'rafael@igrejared.com') {
-          navigate('/admin');
-        } else {
-          navigate('/dashboard');
-        }
-
-        toast({
-          title: 'Login bem-sucedido!',
-          description: 'Bem-vindo ao Portal de Gestão de Cursos Repense.',
-        });
-        
-        setIsLoading(false);
-      }, 800); 
+      await login(values.email, values.password);
+      
+      // Determine where to redirect based on email domain
+      if (values.email.includes('pastor') || 
+          values.email.includes('admin') || 
+          values.email === 'flavio@gmail.com' || 
+          values.email === 'rafael@igrejared.com') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error: any) {
       console.error('Login error:', error);
       setIsLoading(false);
-      toast({
-        variant: 'destructive',
-        title: 'Erro de autenticação',
-        description: 'Ocorreu um erro durante o login. Por favor, tente novamente.',
-      });
+    } finally {
+      setIsLoading(false);
     }
   };
 

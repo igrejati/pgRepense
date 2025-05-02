@@ -12,7 +12,7 @@ const Login = () => {
             <div className="w-48 h-48 mx-auto rounded-full bg-white flex items-center justify-center p-4">
               {/* Logo image */}
               <img 
-                src="/images/repense-logo.png" 
+                src="/lovable-uploads/d7d79772-067e-4721-bd4f-45e31da9d9b9.png" 
                 alt="Repense Logo" 
                 className="max-w-full max-h-full object-contain"
               />
@@ -32,7 +32,7 @@ const Login = () => {
             <div className="md:hidden mb-8">
               <div className="w-20 h-20 mx-auto rounded-full bg-white flex items-center justify-center p-2">
                 <img 
-                  src="/images/repense-logo.png" 
+                  src="/lovable-uploads/d7d79772-067e-4721-bd4f-45e31da9d9b9.png" 
                   alt="Repense Logo" 
                   className="max-w-full max-h-full object-contain"
                 />
