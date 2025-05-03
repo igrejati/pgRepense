@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
@@ -24,7 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLeader, setIsLeader] = useState(false);
   const [isPastor, setIsPastor] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const { toast: toastHook } = useToast();
 
   useEffect(() => {
     // First set up auth state listener to avoid race conditions
@@ -92,49 +93,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Login function
   const login = async (email: string, password: string) => {
     try {
-      // For demo purposes, we'll simulate a successful login with any credentials
-      // In a real app, you would use supabase.auth.signInWithPassword
+      // For demo/presentation, allow any login credentials
+      console.log("Using demo login mode with email:", email);
       
-      // Temporary demo authentication
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) {
-        // For demo, we'll create a fake session if login fails
-        console.log("Using demo login mode");
-        
-        // Simulate successful authentication
-        setUser({ id: 'demo-user', email } as User);
-        setIsAuthenticated(true);
-        
-        // Check if email contains 'pastor' to set role
-        if (email.includes('pastor') || email.includes('admin')) {
-          setIsLeader(true);
-          setIsPastor(true);
-        } else {
-          setIsLeader(true);
-          setIsPastor(false);
-        }
-        
-        toast({
-          title: 'Login bem-sucedido!',
-          description: 'Bem-vindo ao Portal de Gestão de Cursos Repense.',
-        });
+      // For presentation purposes, create a fake user and set auth state
+      setUser({ id: 'demo-user', email } as User);
+      setIsAuthenticated(true);
+      
+      // Check if email contains 'pastor' to set role
+      if (email.includes('pastor') || email.includes('admin')) {
+        setIsLeader(true);
+        setIsPastor(true);
       } else {
-        setUser(data.user);
-        setSession(data.session);
-        setIsAuthenticated(true);
-        
-        toast({
-          title: 'Login bem-sucedido!',
-          description: 'Bem-vindo ao Portal de Gestão de Cursos Repense.',
-        });
+        setIsLeader(true);
+        setIsPastor(false);
       }
+      
+      return Promise.resolve();
     } catch (error: any) {
       console.error('Login error:', error);
-      toast({
+      toastHook({
         variant: 'destructive',
         title: 'Erro de autenticação',
         description: 'Ocorreu um erro durante o login. Por favor, tente novamente.',
@@ -153,13 +131,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLeader(false);
       setIsPastor(false);
       
-      toast({
-        title: 'Logout bem-sucedido',
-        description: 'Você foi desconectado com sucesso.',
-      });
+      toast.success("Logout bem-sucedido");
     } catch (error: any) {
       console.error('Logout error:', error);
-      toast({
+      toastHook({
         variant: 'destructive',
         title: 'Erro ao sair',
         description: 'Ocorreu um erro ao tentar sair. Por favor, tente novamente.',

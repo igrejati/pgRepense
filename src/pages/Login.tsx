@@ -1,14 +1,20 @@
+
 import React from 'react';
 import LoginForm from '@/components/auth/LoginForm';
+
 const Login = () => {
   return <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left side - Image/Brand */}
       <div className="hidden md:flex md:w-1/2 bg-repense-red items-center justify-center p-12">
         <div className="max-w-md text-center">
           <div className="mb-8">
-            <div className="w-48 h-48 mx-auto rounded-full flex items-center justify-center p-4 bg-[f21b1b] bg-[#f21b1b]">
-              {/* Logo image */}
-              <img src="/lovable-uploads/d7d79772-067e-4721-bd4f-45e31da9d9b9.png" alt="Repense Logo" className="max-w-full max-h-full object-fill" />
+            <div className="w-56 h-56 mx-auto rounded-full flex items-center justify-center bg-white p-3 shadow-lg">
+              {/* Logo image - bigger and centered on white background */}
+              <img 
+                src="/lovable-uploads/d7d79772-067e-4721-bd4f-45e31da9d9b9.png" 
+                alt="Repense Logo" 
+                className="max-w-full max-h-full object-contain" 
+              />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-white mb-4">Repense Course Compass</h1>
@@ -23,7 +29,7 @@ const Login = () => {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
             <div className="md:hidden mb-8">
-              <div className="w-20 h-20 mx-auto rounded-full bg-white flex items-center justify-center p-2">
+              <div className="w-32 h-32 mx-auto rounded-full bg-white flex items-center justify-center p-3 shadow-md">
                 <img src="/lovable-uploads/d7d79772-067e-4721-bd4f-45e31da9d9b9.png" alt="Repense Logo" className="max-w-full max-h-full object-contain" />
               </div>
             </div>
@@ -40,4 +46,5 @@ const Login = () => {
       </div>
     </div>;
 };
+
 export default Login;

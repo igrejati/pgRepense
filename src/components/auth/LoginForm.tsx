@@ -16,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, insira um email válido.' }),
@@ -45,18 +46,20 @@ const LoginForm = () => {
     try {
       await login(values.email, values.password);
       
+      // Show success toast and navigate
+      toast.success("Login bem-sucedido!");
+      
       // Determine where to redirect based on email domain
+      // For presentation purposes, always navigate successfully
       if (values.email.includes('pastor') || 
-          values.email.includes('admin') || 
-          values.email === 'flavio@gmail.com' || 
-          values.email === 'rafael@igrejared.com') {
-        navigate('/admin');
+          values.email.includes('admin')) {
+        navigate('/admin', { replace: true });
       } else {
-        navigate('/dashboard');
+        navigate('/dashboard', { replace: true });
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      setIsLoading(false);
+      toast.error('Erro ao fazer login. Por favor, tente novamente.');
     } finally {
       setIsLoading(false);
     }

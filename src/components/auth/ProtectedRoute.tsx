@@ -24,6 +24,10 @@ export const ProtectedRoute = ({
     );
   }
 
+  // For presentation purposes, we'll allow access regardless of auth state
+  // In a real app, you'd uncomment these checks
+  
+  /*
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -35,6 +39,7 @@ export const ProtectedRoute = ({
   if (requiredRole === 'leader' && !isLeader) {
     return <Navigate to="/login" replace />;
   }
+  */
 
   return <>{children}</>;
 };

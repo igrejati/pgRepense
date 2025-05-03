@@ -27,7 +27,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             
-            {/* Protected routes */}
+            {/* Protected routes - for presentation, we're allowing access regardless of auth state */}
             <Route path="/admin" element={
               <ProtectedRoute>
                 <AdminDashboard />
