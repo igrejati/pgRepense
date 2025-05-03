@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, User, Calendar, ChevronDown, LogOut } from 'lucide-react';
+import { Bell, User, Calendar, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -10,7 +10,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/context/AuthContext';
 
 type DashboardHeaderProps = {
   userName?: string;
@@ -22,20 +21,10 @@ const DashboardHeader = ({
   userRole = 'Líder',
 }: DashboardHeaderProps) => {
   const navigate = useNavigate();
-  const { logout, user } = useAuth();
   const [notifications] = useState(2); // Mock notification count
 
-  // Use user email from auth context if available
-  const displayName = user?.email?.split('@')[0] || userName;
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Error during logout:', error);
-    }
-  };
+  // Simplified user display name
+  const displayName = userName;
 
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-6 flex items-center justify-between">
@@ -77,11 +66,6 @@ const DashboardHeader = ({
             <DropdownMenuItem className="cursor-pointer">
               <Calendar className="mr-2 h-4 w-4" />
               <span>Agenda</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer text-red-600" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Sair</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -3,14 +3,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AdminDashboard from "./pages/AdminDashboard";
 import LeaderDashboard from "./pages/LeaderDashboard";
 import AttendanceForm from "./pages/AttendanceForm";
-import { AuthProvider } from "./context/AuthContext";
-import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -18,45 +14,21 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            
-            {/* Protected routes - for presentation, we're allowing access regardless of auth state */}
-            <Route path="/admin" element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <LeaderDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/attendance/:sessionId" element={
-              <ProtectedRoute>
-                <AttendanceForm />
-              </ProtectedRoute>
-            } />
-            <Route path="/attendance/new" element={
-              <ProtectedRoute>
-                <AttendanceForm />
-              </ProtectedRoute>
-            } />
-            
-            {/* Redirect to login by default */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            
-            {/* Catch-all route - redirect to login instead of 404 */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          {/* Access all pages directly without authentication */}
+          <Route path="/" element={<AdminDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/dashboard" element={<LeaderDashboard />} />
+          <Route path="/attendance/:sessionId" element={<AttendanceForm />} />
+          <Route path="/attendance/new" element={<AttendanceForm />} />
+          
+          {/* Redirect any other paths to the admin dashboard */}
+          <Route path="*" element={<AdminDashboard />} />
+        </Routes>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
