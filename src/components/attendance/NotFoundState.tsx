@@ -4,15 +4,11 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
-interface NotFoundStateProps {
-  userName: string;
-}
-
-const NotFoundState: React.FC<NotFoundStateProps> = ({ userName }) => {
+const NotFoundState = () => {
   const navigate = useNavigate();
   
   return (
-    <DashboardLayout userRole="leader" userName={userName}>
+    <DashboardLayout userRole="leader" userName="Líder Demonstração">
       <div className="flex flex-col items-center justify-center h-64">
         <h2 className="text-2xl font-semibold mb-4">Sessão não encontrada</h2>
         <p className="text-muted-foreground mb-4">A sessão solicitada não foi encontrada ou você não tem permissão para acessá-la.</p>
