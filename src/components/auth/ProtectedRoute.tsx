@@ -7,6 +7,6 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  // Always render children without any authentication checks
+  // For demonstration purposes, just render the children without any authentication checks
   return <>{children}</>;
 };

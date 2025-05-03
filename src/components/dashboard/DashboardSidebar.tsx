@@ -31,7 +31,7 @@ const DashboardSidebar = ({ userRole = 'leader' }: SidebarProps) => {
       icon: BarChart2,
       label: 'Dashboard',
       href: isPastor ? '/admin' : '/dashboard',
-      active: location.pathname === (isPastor ? '/admin' : '/dashboard'),
+      active: location.pathname === (isPastor ? '/admin' : '/dashboard') || location.pathname === '/',
     },
     {
       icon: Book,
@@ -83,15 +83,19 @@ const DashboardSidebar = ({ userRole = 'leader' }: SidebarProps) => {
       )}
     >
       <div className="p-4 border-b border-gray-200 flex justify-center items-center">
-        {!collapsed ? (
-          <img 
-            src="/lovable-uploads/d7d79772-067e-4721-bd4f-45e31da9d9b9.png" 
-            alt="Repense Logo" 
-            className="h-8"
-          />
-        ) : (
-          <BookOpen size={24} className="text-repense-red" />
-        )}
+        <div className="flex items-center justify-center">
+          {!collapsed ? (
+            <div className="bg-white rounded-full p-2 flex items-center justify-center">
+              <img 
+                src="/lovable-uploads/d7d79772-067e-4721-bd4f-45e31da9d9b9.png" 
+                alt="Repense Logo" 
+                className="h-10 w-auto"
+              />
+            </div>
+          ) : (
+            <BookOpen size={24} className="text-repense-red" />
+          )}
+        </div>
       </div>
 
       <div className="flex-1 py-4">
