@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { useRequireLeader } from '@/lib/auth';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { useAttendanceForm } from '@/hooks/useAttendanceForm';
 import StudentListCard from '@/components/attendance/StudentListCard';
@@ -10,15 +11,8 @@ import LoadingState from '@/components/attendance/LoadingState';
 import NotFoundState from '@/components/attendance/NotFoundState';
 
 const AttendanceForm = () => {
+  const auth = useRequireLeader();
   const { sessionId } = useParams();
-  
-  // Mock user data for demonstration
-  const mockUser = {
-    id: '123',
-    user_metadata: {
-      name: 'Líder Demo'
-    }
-  };
   
   const {
     filter,
@@ -41,20 +35,20 @@ const AttendanceForm = () => {
     absentCount,
     totalCount
   } = useAttendanceForm({
-    userId: mockUser.id,
+    userId: auth.user?.id,
     sessionId
   });
 
-  if (loading) {
-    return <LoadingState userName={mockUser.user_metadata.name} />;
+  if (loading || auth.loading) {
+    return <LoadingState userName={auth.user?.user_metadata?.name || "Líder"} />;
   }
 
   if (!sessionData) {
-    return <NotFoundState userName={mockUser.user_metadata.name} />;
+    return <NotFoundState userName={auth.user?.user_metadata?.name || "Líder"} />;
   }
 
   return (
-    <DashboardLayout userRole="leader" userName={mockUser.user_metadata.name}>
+    <DashboardLayout userRole="leader" userName={auth.user?.user_metadata?.name || "Líder"}>
       <div className="space-y-6">
         <AttendanceHeader sessionData={sessionData} courseName={courseName} />
 

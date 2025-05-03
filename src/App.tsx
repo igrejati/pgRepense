@@ -4,13 +4,17 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/AdminDashboard";
 import LeaderDashboard from "./pages/LeaderDashboard";
 import AttendanceForm from "./pages/AttendanceForm";
+import NotFound from "./pages/NotFound";
 
 // Create a client
 const queryClient = new QueryClient();
 
+// No longer using AuthGuard since we're allowing any login
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -18,20 +22,20 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Direct access to all pages without authentication */}
-          <Route path="/" element={<AdminDashboard />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          
+          {/* No longer protected routes */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/dashboard" element={<LeaderDashboard />} />
           <Route path="/attendance/:sessionId" element={<AttendanceForm />} />
           <Route path="/attendance/new" element={<AttendanceForm />} />
-          <Route path="/courses" element={<Navigate to="/admin" />} />
-          <Route path="/sessions" element={<Navigate to="/admin" />} />
-          <Route path="/students" element={<Navigate to="/admin" />} />
-          <Route path="/leaders" element={<Navigate to="/admin" />} />
-          <Route path="/settings" element={<Navigate to="/admin" />} />
           
-          {/* Redirect any other paths to the admin dashboard */}
-          <Route path="*" element={<AdminDashboard />} />
+          {/* Redirect to login by default */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          
+          {/* Catch-all route */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

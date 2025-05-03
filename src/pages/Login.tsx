@@ -3,17 +3,18 @@ import React from 'react';
 import LoginForm from '@/components/auth/LoginForm';
 
 const Login = () => {
-  return <div className="min-h-screen flex flex-col md:flex-row">
+  return (
+    <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left side - Image/Brand */}
       <div className="hidden md:flex md:w-1/2 bg-repense-red items-center justify-center p-12">
         <div className="max-w-md text-center">
-          <div className="mb-8 flex justify-center">
-            <div className="w-64 h-64 rounded-full flex items-center justify-center bg-white p-4 shadow-lg">
-              {/* Logo image - bigger and centered on white background */}
+          <div className="mb-8">
+            <div className="w-48 h-48 mx-auto rounded-full bg-white flex items-center justify-center p-4">
+              {/* Logo image */}
               <img 
-                src="/lovable-uploads/d7d79772-067e-4721-bd4f-45e31da9d9b9.png" 
+                src="/images/repense-logo.png" 
                 alt="Repense Logo" 
-                className="max-w-full max-h-full object-contain" 
+                className="max-w-full max-h-full object-contain"
               />
             </div>
           </div>
@@ -28,9 +29,13 @@ const Login = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-6">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <div className="md:hidden mb-8 flex justify-center">
-              <div className="w-36 h-36 rounded-full bg-white flex items-center justify-center p-3 shadow-md">
-                <img src="/lovable-uploads/d7d79772-067e-4721-bd4f-45e31da9d9b9.png" alt="Repense Logo" className="max-w-full max-h-full object-contain" />
+            <div className="md:hidden mb-8">
+              <div className="w-20 h-20 mx-auto rounded-full bg-white flex items-center justify-center p-2">
+                <img 
+                  src="/images/repense-logo.png" 
+                  alt="Repense Logo" 
+                  className="max-w-full max-h-full object-contain"
+                />
               </div>
             </div>
             <h2 className="text-2xl font-bold tracking-tight">
@@ -44,7 +49,8 @@ const Login = () => {
           <LoginForm />
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default Login;

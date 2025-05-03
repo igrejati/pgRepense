@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, User, Calendar, ChevronDown } from 'lucide-react';
+import { Bell, User, Calendar, ChevronDown, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -10,6 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 type DashboardHeaderProps = {
   userName?: string;
@@ -21,10 +23,26 @@ const DashboardHeader = ({
   userRole = 'Líder',
 }: DashboardHeaderProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [notifications] = useState(2); // Mock notification count
 
-  // Simplified user display name
-  const displayName = userName;
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: 'Logout bem-sucedido',
+        description: 'Você foi desconectado com sucesso.',
+      });
+      navigate('/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao sair',
+        description: 'Ocorreu um erro ao tentar sair. Por favor, tente novamente.',
+      });
+    }
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-6 flex items-center justify-between">
@@ -47,7 +65,7 @@ const DashboardHeader = ({
                 <User size={16} />
               </div>
               <div className="hidden md:block text-left">
-                <p className="text-sm font-medium">{displayName}</p>
+                <p className="text-sm font-medium">{userName}</p>
                 <p className="text-xs text-muted-foreground">{userRole}</p>
               </div>
               <ChevronDown size={16} className="text-muted-foreground" />
@@ -55,7 +73,7 @@ const DashboardHeader = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <div className="px-2 py-1.5 text-sm">
-              <div className="font-semibold">{displayName}</div>
+              <div className="font-semibold">{userName}</div>
               <div className="text-xs text-muted-foreground">{userRole}</div>
             </div>
             <DropdownMenuSeparator />
@@ -66,6 +84,11 @@ const DashboardHeader = ({
             <DropdownMenuItem className="cursor-pointer">
               <Calendar className="mr-2 h-4 w-4" />
               <span>Agenda</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="cursor-pointer text-red-600" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Sair</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
