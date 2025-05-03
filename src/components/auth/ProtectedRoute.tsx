@@ -24,9 +24,11 @@ export const ProtectedRoute = ({
     );
   }
 
-  // For presentation purposes, we'll allow access regardless of auth state
-  // In a real app, you'd uncomment these checks
-  
+  // For presentation purposes, we'll allow navigation regardless of auth state
+  // This ensures users can navigate through the app for demonstration
+  return <>{children}</>;
+
+  // When ready to implement real authentication, uncomment the below code
   /*
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -40,6 +42,4 @@ export const ProtectedRoute = ({
     return <Navigate to="/login" replace />;
   }
   */
-
-  return <>{children}</>;
 };

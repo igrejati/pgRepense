@@ -7,8 +7,8 @@ const Login = () => {
       {/* Left side - Image/Brand */}
       <div className="hidden md:flex md:w-1/2 bg-repense-red items-center justify-center p-12">
         <div className="max-w-md text-center">
-          <div className="mb-8">
-            <div className="w-56 h-56 mx-auto rounded-full flex items-center justify-center bg-white p-3 shadow-lg">
+          <div className="mb-8 flex justify-center">
+            <div className="w-64 h-64 rounded-full flex items-center justify-center bg-white p-4 shadow-lg">
               {/* Logo image - bigger and centered on white background */}
               <img 
                 src="/lovable-uploads/d7d79772-067e-4721-bd4f-45e31da9d9b9.png" 
@@ -28,8 +28,8 @@ const Login = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-6">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <div className="md:hidden mb-8">
-              <div className="w-32 h-32 mx-auto rounded-full bg-white flex items-center justify-center p-3 shadow-md">
+            <div className="md:hidden mb-8 flex justify-center">
+              <div className="w-36 h-36 rounded-full bg-white flex items-center justify-center p-3 shadow-md">
                 <img src="/lovable-uploads/d7d79772-067e-4721-bd4f-45e31da9d9b9.png" alt="Repense Logo" className="max-w-full max-h-full object-contain" />
               </div>
             </div>
