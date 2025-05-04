@@ -22,11 +22,18 @@ const App = () => (
           {/* Use LeaderDashboard as the default landing page */}
           <Route path="/" element={<LeaderDashboard />} />
           
-          {/* Direct access to all pages without auth */}
+          {/* Direct access to all existing pages without auth */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/dashboard" element={<LeaderDashboard />} />
           <Route path="/attendance/:sessionId" element={<AttendanceForm />} />
           <Route path="/attendance/new" element={<AttendanceForm />} />
+          
+          {/* Redirect paths for removed pages */}
+          <Route path="/courses" element={<Navigate to="/dashboard" />} />
+          <Route path="/sessions" element={<Navigate to="/dashboard" />} />
+          <Route path="/students" element={<Navigate to="/dashboard" />} />
+          <Route path="/leaders" element={<Navigate to="/admin" />} />
+          <Route path="/settings" element={<Navigate to="/dashboard" />} />
           
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />

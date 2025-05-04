@@ -1,7 +1,7 @@
 
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
-  BarChart2, Users, Book, BookOpen, Calendar, Settings, 
+  BarChart2, Users, Settings, 
   User, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -32,18 +32,6 @@ const DashboardSidebar = ({ userRole = 'leader' }: SidebarProps) => {
       label: 'Dashboard',
       href: isPastor ? '/admin' : '/dashboard',
       active: location.pathname === (isPastor ? '/admin' : '/dashboard'),
-    },
-    {
-      icon: Book,
-      label: 'Cursos',
-      href: '/courses',
-      active: location.pathname === '/courses',
-    },
-    {
-      icon: Calendar,
-      label: 'Sessões',
-      href: '/sessions',
-      active: location.pathname === '/sessions',
     },
     {
       icon: Users,
@@ -95,7 +83,7 @@ const DashboardSidebar = ({ userRole = 'leader' }: SidebarProps) => {
             }}
           />
         ) : (
-          <BookOpen size={24} className="text-repense-red" />
+          <User size={24} className="text-repense-red" />
         )}
       </div>
 
