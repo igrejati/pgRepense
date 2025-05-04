@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { CourseSession } from '@/types/schema';
@@ -26,13 +27,47 @@ export function useAttendanceForm({ userId, sessionId }: UseAttendanceFormProps)
     const loadAttendanceData = async () => {
       try {
         setLoading(true);
-        // Using userId even if it's a mock ID
-        const data = await fetchAttendanceData(userId || 'mock-user-id', sessionId);
         
-        setSessionData(data.sessionData);
-        setCourseName(data.courseName);
-        setAttendanceData(data.attendanceData);
-        setNotes(data.notes);
+        // Using mock data for demonstration
+        const mockSessionId = sessionId || 'mock-session';
+        
+        // Generate mock data based on the session ID or use defaults
+        const mockData = {
+          sessionData: {
+            id: mockSessionId,
+            course_id: 1,
+            session_number: parseInt(mockSessionId.charAt(mockSessionId.length - 1)) || 1,
+            session_date: new Date().toISOString(),
+            topic: "Introdução ao Curso",
+            notes: "Esta é a primeira sessão do curso.",
+            is_completed: false,
+            created_at: new Date().toISOString()
+          } as CourseSession,
+          
+          courseName: mockSessionId.includes('evangelho') ? 
+                      'PG Repense o Evangelho (Presencial)' : 
+                      mockSessionId.includes('igreja') ? 
+                      'PG Repense a Igreja (Online)' : 
+                      'PG Repense a Espiritualidade (Presencial)',
+          
+          attendanceData: Array.from({ length: 15 }, (_, i) => ({
+            student: {
+              id: `student-${i + 1}`,
+              name: `Aluno ${i + 1}`,
+              email: `aluno${i + 1}@example.com`,
+              phone: `+55 11 9${Math.floor(Math.random() * 10000)}${Math.floor(Math.random() * 10000)}`,
+            },
+            present: Math.random() > 0.2, // 80% chance of being present
+            justification: Math.random() > 0.7 ? 'Problemas pessoais' : ''
+          })),
+          
+          notes: "Notas da sessão para o instrutor."
+        };
+        
+        setSessionData(mockData.sessionData);
+        setCourseName(mockData.courseName);
+        setAttendanceData(mockData.attendanceData);
+        setNotes(mockData.notes);
       } catch (error: any) {
         console.error('Error fetching attendance data:', error);
         toast({
