@@ -32,42 +32,48 @@ export function useAttendanceForm({ userId, sessionId }: UseAttendanceFormProps)
         const mockSessionId = sessionId || 'mock-session';
         
         // Generate mock data based on the session ID or use defaults
-        const mockData = {
-          sessionData: {
-            id: mockSessionId,
-            course_id: 1,
-            session_number: parseInt(mockSessionId.charAt(mockSessionId.length - 1)) || 1,
-            session_date: new Date().toISOString(),
-            topic: "Introdução ao Curso",
-            notes: "Esta é a primeira sessão do curso.",
-            is_completed: false,
-            created_at: new Date().toISOString()
-          } as CourseSession,
-          
-          courseName: mockSessionId.includes('evangelho') ? 
-                      'PG Repense o Evangelho (Presencial)' : 
-                      mockSessionId.includes('igreja') ? 
-                      'PG Repense a Igreja (Online)' : 
-                      'PG Repense a Espiritualidade (Presencial)',
-          
-          attendanceData: Array.from({ length: 15 }, (_, i) => ({
-            student: {
-              id: `student-${i + 1}`,
-              name: `Aluno ${i + 1}`,
-              email: `aluno${i + 1}@example.com`,
-              phone: `+55 11 9${Math.floor(Math.random() * 10000)}${Math.floor(Math.random() * 10000)}`,
-            },
-            present: Math.random() > 0.2, // 80% chance of being present
-            justification: Math.random() > 0.7 ? 'Problemas pessoais' : ''
-          })),
-          
-          notes: "Notas da sessão para o instrutor."
+        const mockSessionData: CourseSession = {
+          id: parseInt(mockSessionId.replace('mock-session', '1')),
+          course_id: 1,
+          session_number: parseInt(mockSessionId.charAt(mockSessionId.length - 1)) || 1,
+          session_date: new Date().toISOString(),
+          topic: "Introdução ao Curso",
+          notes: "Esta é a primeira sessão do curso.",
+          is_completed: false,
+          created_at: new Date().toISOString()
         };
         
-        setSessionData(mockData.sessionData);
-        setCourseName(mockData.courseName);
-        setAttendanceData(mockData.attendanceData);
-        setNotes(mockData.notes);
+        const mockCourseName = mockSessionId.includes('evangelho') ? 
+          'PG Repense o Evangelho (Presencial)' : 
+          mockSessionId.includes('igreja') ? 
+          'PG Repense a Igreja (Online)' : 
+          'PG Repense a Espiritualidade (Presencial)';
+        
+        // Create properly typed mock attendance data
+        const mockAttendanceData: StudentAttendance[] = Array.from({ length: 15 }, (_, i) => ({
+          student: {
+            id: i + 1,
+            name: `Aluno ${i + 1}`,
+            email: `aluno${i + 1}@example.com`,
+            phone: `+55 11 9${Math.floor(Math.random() * 10000)}${Math.floor(Math.random() * 10000)}`,
+            birth_date: "1990-01-01",
+            gender: "Não informado",
+            marital_status: "Não informado",
+            cpf: "000.000.000-00",
+            address: "Endereço não informado",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          present: Math.random() > 0.2, // 80% chance of being present
+          justification: Math.random() > 0.7 ? 'Problemas pessoais' : ''
+        }));
+        
+        const mockNotes = "Notas da sessão para o instrutor.";
+        
+        setSessionData(mockSessionData);
+        setCourseName(mockCourseName);
+        setAttendanceData(mockAttendanceData);
+        setNotes(mockNotes);
       } catch (error: any) {
         console.error('Error fetching attendance data:', error);
         toast({

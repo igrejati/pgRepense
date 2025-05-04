@@ -25,13 +25,12 @@ const DashboardHeader = ({
   const { toast } = useToast();
   const [notifications] = useState(2); // Mock notification count
 
-  // Simplified logout that just navigates without authentication
+  // Simplified logout that just shows a toast
   const handleLogout = () => {
     toast({
-      title: 'Logout bem-sucedido',
-      description: 'Você foi desconectado com sucesso.',
+      title: 'Ação simulada',
+      description: 'Esta ação seria um logout em uma aplicação real.',
     });
-    navigate('/login');
   };
 
   return (

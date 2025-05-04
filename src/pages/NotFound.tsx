@@ -26,7 +26,7 @@ const NotFound = () => {
         <p className="text-muted-foreground mb-8">
           A página que você está procurando não existe ou foi removida.
         </p>
-        <Link to="/dashboard">
+        <Link to="/">
           <Button className="bg-repense-red hover:bg-opacity-90">
             <Home className="mr-2 h-4 w-4" />
             Voltar à página inicial

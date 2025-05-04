@@ -33,12 +33,12 @@ const AttendanceForm = () => {
     absentCount,
     totalCount
   } = useAttendanceForm({
-    userId: "mock-user-id", // Using a mock user ID instead of auth.user?.id
+    userId: "mock-user-id",
     sessionId
   });
 
   if (loading) {
-    return <LoadingState userName="Líder" />;
+    return <LoadingState />;
   }
 
   if (!sessionData) {
