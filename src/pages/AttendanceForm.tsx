@@ -44,7 +44,7 @@ const AttendanceForm = () => {
   }
 
   if (!sessionData) {
-    return <NotFoundState userName={auth.user?.user_metadata?.name || "Líder"} />;
+    return <NotFoundState />; // Fix: removed userName prop since it's now optional with default value
   }
 
   return (

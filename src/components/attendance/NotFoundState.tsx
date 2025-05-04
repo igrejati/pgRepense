@@ -4,11 +4,12 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
+// Making userName optional to fix the type error
 interface NotFoundStateProps {
-  userName: string;
+  userName?: string;
 }
 
-const NotFoundState: React.FC<NotFoundStateProps> = ({ userName }) => {
+const NotFoundState: React.FC<NotFoundStateProps> = ({ userName = "Líder" }) => {
   const navigate = useNavigate();
   
   return (
