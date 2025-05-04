@@ -52,7 +52,7 @@ export function useAttendanceForm({ userId, sessionId }: UseAttendanceFormProps)
         // Create properly typed mock attendance data
         const mockAttendanceData: StudentAttendance[] = Array.from({ length: 15 }, (_, i) => ({
           student: {
-            id: i + 1,
+            id: `${i + 1}`,
             name: `Aluno ${i + 1}`,
             email: `aluno${i + 1}@example.com`,
             phone: `+55 11 9${Math.floor(Math.random() * 10000)}${Math.floor(Math.random() * 10000)}`,
@@ -60,9 +60,9 @@ export function useAttendanceForm({ userId, sessionId }: UseAttendanceFormProps)
             gender: "Não informado",
             marital_status: "Não informado",
             cpf: "000.000.000-00",
-            address: "Endereço não informado",
             created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
+            registration_date: new Date().toISOString()
           },
           present: Math.random() > 0.2, // 80% chance of being present
           justification: Math.random() > 0.7 ? 'Problemas pessoais' : ''

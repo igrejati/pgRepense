@@ -38,7 +38,8 @@ const AttendanceForm = () => {
   });
 
   if (loading) {
-    return <LoadingState />;
+    // Pass the required userName prop to LoadingState
+    return <LoadingState userName="Líder" />;
   }
 
   if (!sessionData) {
