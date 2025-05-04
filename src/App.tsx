@@ -28,6 +28,9 @@ const App = () => (
           <Route path="/attendance/:sessionId" element={<AttendanceForm />} />
           <Route path="/attendance/new" element={<AttendanceForm />} />
           
+          {/* Redirect login route to dashboard */}
+          <Route path="/login" element={<Navigate to="/dashboard" />} />
+          
           {/* Redirect paths for removed pages */}
           <Route path="/courses" element={<Navigate to="/dashboard" />} />
           <Route path="/sessions" element={<Navigate to="/dashboard" />} />
