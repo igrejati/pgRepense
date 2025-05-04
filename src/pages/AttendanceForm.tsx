@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { useRequireLeader } from '@/lib/auth';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { useAttendanceForm } from '@/hooks/useAttendanceForm';
 import StudentListCard from '@/components/attendance/StudentListCard';
@@ -11,7 +10,6 @@ import LoadingState from '@/components/attendance/LoadingState';
 import NotFoundState from '@/components/attendance/NotFoundState';
 
 const AttendanceForm = () => {
-  const auth = useRequireLeader();
   const { sessionId } = useParams();
   
   const {
@@ -35,20 +33,20 @@ const AttendanceForm = () => {
     absentCount,
     totalCount
   } = useAttendanceForm({
-    userId: auth.user?.id,
+    userId: "mock-user-id", // Using a mock user ID instead of auth.user?.id
     sessionId
   });
 
-  if (loading || auth.loading) {
-    return <LoadingState userName={auth.user?.user_metadata?.name || "Líder"} />;
+  if (loading) {
+    return <LoadingState userName="Líder" />;
   }
 
   if (!sessionData) {
-    return <NotFoundState />; // Fix: removed userName prop since it's now optional with default value
+    return <NotFoundState />;
   }
 
   return (
-    <DashboardLayout userRole="leader" userName={auth.user?.user_metadata?.name || "Líder"}>
+    <DashboardLayout userRole="leader" userName="Líder">
       <div className="space-y-6">
         <AttendanceHeader sessionData={sessionData} courseName={courseName} />
 

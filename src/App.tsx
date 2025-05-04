@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,7 +13,6 @@ import NotFound from "./pages/NotFound";
 // Create a client
 const queryClient = new QueryClient();
 
-// No longer using AuthGuard since we're allowing any login
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -22,17 +20,18 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Use LeaderDashboard as the default landing page */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          
+          {/* Keep login/signup pages for demonstration, but they aren't required */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           
-          {/* No longer protected routes */}
+          {/* Direct access to all pages */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/dashboard" element={<LeaderDashboard />} />
           <Route path="/attendance/:sessionId" element={<AttendanceForm />} />
           <Route path="/attendance/new" element={<AttendanceForm />} />
-          
-          {/* Redirect to login by default */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
           
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />

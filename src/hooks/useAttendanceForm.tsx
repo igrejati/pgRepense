@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { CourseSession } from '@/types/schema';
@@ -22,14 +21,13 @@ export function useAttendanceForm({ userId, sessionId }: UseAttendanceFormProps)
   const [courseName, setCourseName] = useState('');
   const [attendanceData, setAttendanceData] = useState<StudentAttendance[]>([]);
 
-  // Load attendance data
+  // Load attendance data without authentication checks
   useEffect(() => {
     const loadAttendanceData = async () => {
-      if (!userId) return;
-
       try {
         setLoading(true);
-        const data = await fetchAttendanceData(userId, sessionId);
+        // Using userId even if it's a mock ID
+        const data = await fetchAttendanceData(userId || 'mock-user-id', sessionId);
         
         setSessionData(data.sessionData);
         setCourseName(data.courseName);
@@ -85,7 +83,7 @@ export function useAttendanceForm({ userId, sessionId }: UseAttendanceFormProps)
     );
   };
 
-  // Save attendance records
+  // Save attendance records without authentication checks
   const saveAttendance = async () => {
     if (!sessionData) return;
     
